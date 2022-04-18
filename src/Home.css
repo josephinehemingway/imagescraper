@@ -1,0 +1,22 @@
+.head-text {
+    top: 20%;
+ }
+
+ .title {
+    color: #274169;
+    font-size: 40px;
+ }
+
+ body {
+    background-color: #274169;
+    align-items: center;
+    
+ }
+
+ /* body.home {
+    /* display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+ } */
+
