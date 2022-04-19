@@ -1,7 +1,12 @@
 const path = require('path');
 
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const isDev = require('electron-is-dev');
+require('@electron/remote/main').initialize()
+
+ipcMain.on("msg", (event, data) => {
+  console.warn(data)
+})
 
 function createWindow() {
   // Create the browser window.
@@ -10,6 +15,7 @@ function createWindow() {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
+      enableRemoteModule: true,
     },
   });
 

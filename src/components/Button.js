@@ -17,7 +17,9 @@ export const UtilityButton = styled(Button)`
     font-size: 16px;  
     text-align: center;
     display-inline-block;
-    width: ${(props) => (props.width ? props.width : '150px')};
+    width: ${(props) => (props.width ? props.width : '10vw')};
+    min-width: 150px;
+    max-width: 180px;
     height: 40px;
     margin-left: 10px;
 

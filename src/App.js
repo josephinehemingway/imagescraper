@@ -1,15 +1,14 @@
 import "./App.css";
 import React from "react";
-import Home from "./Home"; 
+import Home from "./Home";
 
-class App extends React.Component {
-  render () {
+const App = () => {
+  
     return (
-      <div className="App">
-        <Home />
-      </div>
-    )
-  }
+    <div className="App">
+      <Home />
+    </div>
+  )
 }
 
 export default App;
