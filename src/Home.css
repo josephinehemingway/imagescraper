@@ -100,3 +100,34 @@
     width: 100%;
     display: contents;
  }
+
+ #lightbox {
+    z-index: 1;
+    position: fixed;
+    transition: all 1s;
+    opacity: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /*optional bg color*/
+    background-color: rgba(0, 0, 0, 0.6);
+    /*the following isn't necessary but will help center everything once we add buttons*/
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal {
+    max-width: 50%;
+    max-height: 60%
+}
+
+.caption {
+    color: white;
+    font-size: 20px;
+    justify-content: flex-start;
+    flex-direction: row;
+    display: flex;
+    width: 100%;
+}

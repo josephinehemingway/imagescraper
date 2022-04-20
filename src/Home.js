@@ -3,9 +3,8 @@ import './Home.css'
 import { Input, InputNumber, Radio } from 'antd';
 import { CheckboxUnselected, ContentContainer, RowContainer } from './components/Styles';
 import { UtilityButton } from './components/Button';
-import { CheckCircleTwoTone } from '@ant-design/icons';
+import { CheckCircleTwoTone, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { imagesReceived } from './utils';
-import ImageModal from './components/ImageModal';
 
 //https://github.com/Daym3l/react-gallery-picker/blob/cf4d68cb02777b2f522bcfde4149a38e77bf9887/src/index.js
 
@@ -23,7 +22,7 @@ const Home = () => {
     const [imgSize, setImgSize] = useState("200vmin")
     const [selectedSize, setSelectedSize] = useState('192vmin')
     const [searchTerm, setSearchTerm] = useState('')
-    const [isModalVisible, setModalVisibility] = useState(false)
+    const [isLightboxVisible, setLightboxVisibility] = useState(false)
     const [selectedImage, setSelectedImage] = useState()
     // const [isLoading, setIsLoading] = useState(false);
 
@@ -59,17 +58,38 @@ const Home = () => {
         setImages(imageList);
     }
 
-    const onImageClick = image => {
+    const handleOpenLightbox = image => {
         // open image modal
-        setModalVisibility(true)
+        setLightboxVisibility(true)
         setSelectedImage(image)
-        console.log('on image click image', image)
-        console.log('on image click selected', selectedImage)
     }
 
-    const handleCloseModal = () => {
-        setModalVisibility(false)
-        // setSelectedImage({})
+    const handleCloseLightbox = () => {
+        setLightboxVisibility(false)
+    }
+
+    const showNext = (e) => {
+        e.stopPropagation()
+        let currentIndex = images.indexOf(selectedImage)
+        if (currentIndex >= images.length - 1) {
+            setLightboxVisibility(false)
+        }
+        else {
+            let nextImage = images[currentIndex + 1]
+            setSelectedImage(nextImage)
+        }
+    }
+
+    const showPrev = (e) => {
+        e.stopPropagation()
+        let currentIndex = images.indexOf(selectedImage)
+        if (currentIndex <= 0) {
+            setLightboxVisibility(false)
+        }
+        else {
+            let nextImage = images[currentIndex - 1]
+            setSelectedImage(nextImage)
+        }
     }
 
     const handleLimitChange = (e) => {
@@ -123,7 +143,7 @@ const Home = () => {
                 alt={im.title}
                 height={im.selected ? selectedSize : imgSize}
                 width={im.selected ? selectedSize : imgSize}
-                onClick={() => onImageClick(im)}
+                onClick={() => handleOpenLightbox(im)}
             />
 
             {im.selected ?
@@ -204,14 +224,20 @@ const Home = () => {
 
                     {gallery}
                 </div>
-                <ImageModal
-                    key={selectedImage}
-                    image={selectedImage}
-                    isModalVisible={isModalVisible}
-                    handleClose={handleCloseModal}
-                    imgArray={images}
-                />
-
+                {
+                    isLightboxVisible ?
+                        <div id="lightbox" onClick={handleCloseLightbox}>
+                            <LeftOutlined style={{ fontSize: '50px', color: 'white', marginLeft: '20vmin' }}
+                                onClick={showPrev} />
+                            {/* <ContentContainer alignitems="center"> */}
+                                <img id={selectedImage.id} src={selectedImage.src} className='modal' />
+                                {/* <div className='caption' style={{ width: '70%'}}>
+                                    {selectedImage.title}
+                                </div> */}
+                            {/* </ContentContainer>  */}
+                            <RightOutlined style={{ fontSize: '50px', color: 'white', marginRight: '20vmin' }} onClick={showNext} />
+                        </div> : ''
+                }
 
             </ContentContainer>
         </body>
