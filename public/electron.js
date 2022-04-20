@@ -5,7 +5,7 @@ const isDev = require('electron-is-dev');
 require('@electron/remote/main').initialize()
 
 ipcMain.on("msg", (event, data) => {
-  console.warn(data)
+  console.warn('got msg:', data)
 })
 
 function createWindow() {
@@ -18,6 +18,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
+      contextIsolation: false,
     },
   });
 
