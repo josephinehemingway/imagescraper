@@ -33,6 +33,13 @@ const Home = () => {
             imageList.push({ id: i, src: el.url, selected: false, title: el.title })
         });
         setImages(imageList);
+
+        let electron = window.require('electron');
+        if (electron) {
+            electron.ipcRenderer.on('result', (event, msg) => {
+                console.log('got reply:', msg);
+            });
+        }
     }, [])
 
     // useEffect(() => {
@@ -101,11 +108,12 @@ const Home = () => {
         setSelectedSize(e.target.value[1])
     }
 
-    // const { ipcRenderer } = require("electron")
     const onSearch = (value) => {
         console.log(value);
-        setSearchTerm(value)
-        // ipcRenderer.send("msg", "hello")
+        setSearchTerm(value);
+        console.log('window.electron', window.electron)
+        let electron = window.require('electron');
+        if (electron) electron.ipcRenderer.send("msg", "hello & search "+ value);
     }
 
     const handleSelectAll = () => {
