@@ -5,7 +5,16 @@ import {
   Select,
   Col,
 } from 'antd'
+import { CheckCircleOutlined } from '@ant-design/icons';
 
+
+export const CheckboxUnselected = styled(CheckCircleOutlined)`
+  && {
+    font-size: 25px;
+    color: white;
+    opacity: 0;
+  }
+`
 
 export const Container = styled.div`
   width: 100%;

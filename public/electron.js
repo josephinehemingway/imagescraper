@@ -11,7 +11,9 @@ ipcMain.on("msg", (event, data) => {
 function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
-    width: 800,
+    minWidth: 950,
+    minHeight: 600,
+    width: 950,
     height: 600,
     webPreferences: {
       nodeIntegration: true,
