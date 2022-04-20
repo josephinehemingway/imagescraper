@@ -1,16 +1,13 @@
 const path = require('path');
-
 const { app, BrowserWindow, ipcMain } = require('electron');
 const isDev = require('electron-is-dev');
-require('@electron/remote/main').initialize()
+require('@electron/remote/main').initialize();
 
-ipcMain.on("msg", (event, data) => {
-  console.warn('got msg:', data)
-})
+let win = null;
 
 function createWindow() {
   // Create the browser window.
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     minWidth: 950,
     minHeight: 600,
     width: 950,
@@ -54,3 +51,10 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+ipcMain.on("msg", (event, data) => {
+  console.log('got msg:', data);
+  // require sub-module to handle the message
+  console.log('sending reply');
+  win.send('result', {msg:"here's the result"});
+})

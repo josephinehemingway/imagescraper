@@ -31,6 +31,13 @@ const Home = () => {
             imageList.push({ id: i, src: el.url, selected: false, title: el.title })
         });
         setImages(imageList);
+
+        let electron = window.require('electron');
+        if (electron) {
+            electron.ipcRenderer.on('result', (event, msg) => {
+                console.log('got reply:', msg);
+            });
+        }
     }, [])
 
     // useEffect(() => {
