@@ -10,10 +10,16 @@ const ImageModal = ({ image, isModalVisible, handleClose, imgArray }) => {
     const [isEnd, setIsEnd] = useState(false)
     const [isStart, setIsStart] = useState(false)
 
+    const handleCloseModal = () => {
+      handleClose()
+      setSelectedImage(image)
+      console.log('closemodal image', image)
+      console.log('closemodal selected', selectedImage)
+    }
+
     useEffect(() => {
         if (image && !isEmpty(imgArray)) {
           const pos = imgArray.indexOf(image)
-          console.log(pos)
           checkIfStartOrEnd(pos)
         }
     }, [image, imgArray])
@@ -29,10 +35,11 @@ const ImageModal = ({ image, isModalVisible, handleClose, imgArray }) => {
 
     const handleNext = () => {
         const pos = imgArray.indexOf(selectedImage)
-        console.log(selectedImage)
+        console.log('pos', pos)
+        console.log('cur', selectedImage)
         checkIfStartOrEnd(pos + 1)
 
-        if (pos != imgArray.length - 1) {
+        if (pos !== imgArray.length - 1) {
             setSelectedImage(imgArray[pos + 1])
         }
     }
@@ -40,8 +47,10 @@ const ImageModal = ({ image, isModalVisible, handleClose, imgArray }) => {
     const handlePrevious = () => {
         const pos = imgArray.indexOf(selectedImage)
         checkIfStartOrEnd(pos - 1)
+        console.log('pos', pos)
+        console.log('cur', selectedImage)
 
-        if (pos != 0) {
+        if (pos !== 0) {
             setSelectedImage(imgArray[pos - 1])
         }
     }
@@ -75,7 +84,7 @@ const ImageModal = ({ image, isModalVisible, handleClose, imgArray }) => {
     return (
         <Modal
             visible={isModalVisible}
-            onCancel={handleClose}
+            onCancel={handleCloseModal}
             centered
             footer={imgArray.length === 1 ? null : generateFooter()}
         >
@@ -87,7 +96,6 @@ const ImageModal = ({ image, isModalVisible, handleClose, imgArray }) => {
                 height={'300px'}
                 width={'300px'}
             /> */}
-            hello
 
         </Modal>
     )

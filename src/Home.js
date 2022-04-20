@@ -63,10 +63,13 @@ const Home = () => {
         // open image modal
         setModalVisibility(true)
         setSelectedImage(image)
+        console.log('on image click image', image)
+        console.log('on image click selected', selectedImage)
     }
 
     const handleCloseModal = () => {
         setModalVisibility(false)
+        // setSelectedImage({})
     }
 
     const handleLimitChange = (e) => {
@@ -202,7 +205,8 @@ const Home = () => {
                     {gallery}
                 </div>
                 <ImageModal
-                    imageUrl={selectedImage}
+                    key={selectedImage}
+                    image={selectedImage}
                     isModalVisible={isModalVisible}
                     handleClose={handleCloseModal}
                     imgArray={images}
