@@ -10,7 +10,7 @@ import { CheckCircleOutlined } from '@ant-design/icons';
 
 export const CheckboxUnselected = styled(CheckCircleOutlined)`
   && {
-    font-size: 25px;
+    font-size: 35px;
     color: white;
     opacity: 0;
   }
