@@ -57,6 +57,12 @@
     opacity: 1;
 }
 
+/* .imgPicker:hover .anticon:focus {
+    transform: scale(1.05);
+    opacity: 1;
+    color: #a2e283;
+} */
+
 .imgPicker .anticon {
     position: absolute; 
     top: 10px; 
@@ -67,6 +73,11 @@
     position: absolute; 
     top: 10px; 
     left: 10px;
+}
+
+.selected .anticon:hover {
+    transform: scale(1.05);
+    opacity: 1;
 }
 
 .selected {

@@ -5,6 +5,7 @@ import { CheckboxUnselected, ContentContainer, RowContainer } from './components
 import { UtilityButton } from './components/Button';
 import { CheckCircleTwoTone } from '@ant-design/icons';
 import { imagesReceived } from './utils';
+import ImageModal from './components/ImageModal';
 
 //https://github.com/Daym3l/react-gallery-picker/blob/cf4d68cb02777b2f522bcfde4149a38e77bf9887/src/index.js
 
@@ -22,6 +23,8 @@ const Home = () => {
     const [imgSize, setImgSize] = useState("200vmin")
     const [selectedSize, setSelectedSize] = useState('192vmin')
     const [searchTerm, setSearchTerm] = useState('')
+    const [isModalVisible, setModalVisibility] = useState(false)
+    const [selectedImage, setSelectedImage] = useState()
     // const [isLoading, setIsLoading] = useState(false);
 
 
@@ -63,8 +66,17 @@ const Home = () => {
         setImages(imageList);
     }
 
-    const onImageClick = id => {
+    const onImageClick = image => {
+        // open image modal
+        setModalVisibility(true)
+        setSelectedImage(image)
+        console.log('on image click image', image)
+        console.log('on image click selected', selectedImage)
+    }
 
+    const handleCloseModal = () => {
+        setModalVisibility(false)
+        // setSelectedImage({})
     }
 
     const handleLimitChange = (e) => {
@@ -104,6 +116,9 @@ const Home = () => {
 
     const handleDownload = () => {
         console.log(images.filter(im => im.selected === true))
+        // open file explorer - to select download location
+        // download images into local directory
+        // download as a zip?
     }
 
     const gallery = images.map((im, i) => (
@@ -116,11 +131,12 @@ const Home = () => {
                 alt={im.title}
                 height={im.selected ? selectedSize : imgSize}
                 width={im.selected ? selectedSize : imgSize}
+                onClick={() => onImageClick(im)}
             />
 
             {im.selected ?
                 <CheckCircleTwoTone
-                    style={{ fontSize: '25px' }}
+                    style={{ fontSize: '35px' }}
                     onClick={() => onCheckboxClick(im.id)}
                     twoToneColor="#52c41a"
                 />
@@ -196,6 +212,14 @@ const Home = () => {
 
                     {gallery}
                 </div>
+                <ImageModal
+                    key={selectedImage}
+                    image={selectedImage}
+                    isModalVisible={isModalVisible}
+                    handleClose={handleCloseModal}
+                    imgArray={images}
+                />
+
 
             </ContentContainer>
         </body>
