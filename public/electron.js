@@ -54,7 +54,24 @@ app.on('activate', () => {
 
 ipcMain.on("msg", (event, data) => {
   console.log('got msg:', data);
-  // require sub-module to handle the message
+  // require sub-module to handle the 
+  console.log(data)
+  res = search(data, 10)
   console.log('sending reply');
-  win.send('result', {msg:"here's the result"});
+  res.then(function(result) {
+    win.send('result', result)
+  })
 })
+
+var Scraper = require('../backend/google/scraper');
+let google = new Scraper();
+
+async function search(query, limit)  {
+  const results = await google.scrape(query, limit); 
+  
+  console.log(results.length, ' results found')
+  console.log('results', results);
+
+  const results_string = JSON.stringify(results)
+  return results_string
+};

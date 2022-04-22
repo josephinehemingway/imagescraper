@@ -24,7 +24,7 @@
   "main": "public/electron.js",
   "homepage": "./",
   "scripts": {
-    "start-backend": "node index.js",
+    "start-backend": "node backend/index.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

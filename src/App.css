@@ -1,16 +1,4 @@
-@import '~antd/dist/antd.css';
-
-.App {
-  text-align: center;
-  background-color: white;
-}
-
-
-.body {
-  background-color: white;
-  align-items: center;
-}
-
+/* @import '~antd/dist/antd.css'; */
 
 .App-header {
   background-color: #274169;

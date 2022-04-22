@@ -4,9 +4,16 @@ import {
   InputNumber,
   Select,
   Col,
+  Input,
 } from 'antd'
 import { CheckCircleOutlined } from '@ant-design/icons';
 
+export const StyledInput = styled(Input)`
+  && {
+    width: 100%;
+    border-radius: 5px;
+  }
+`
 
 export const CheckboxUnselected = styled(CheckCircleOutlined)`
   && {
@@ -72,4 +79,43 @@ export const ContentContainer = styled(Col)`
     justify-content: center;
     align-items: ${(props) => (props.alignitems ? props.alignitems : 'flex-start')};
   }
+`
+
+export const SearchBar = styled(Input.Search)`
+&& {
+ 
+    border-radius: 25px;
+    height: 50px;
+
+  & .ant-input-search .ant-input-lg {
+    margin-left: 10px;
+  }
+
+  & .ant-input-group > .ant-input-affix-wrapper {
+    box-shadow: 0 3px 3px -4px rgb(0 0 0 / 12%), 0 6px 16px 0 rgb(0 0 0 / 8%),
+    0 9px 28px 8px rgb(0 0 0 / 5%);
+    border-radius: 25px;
+    height: 50px;
+  }
+
+  &.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button {
+    box-shadow: 0 3px 3px -4px rgb(0 0 0 / 12%), 0 6px 16px 0 rgb(0 0 0 / 8%),
+    0 9px 28px 8px rgb(0 0 0 / 5%);
+    height: 50px;
+    width: 50px;
+    border-radius: 30px;
+    margin-left: 10px;
+  }
+
+  & .ant-input-search .ant-input-group .ant-input-affix-wrapper:not(:last-child){
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+    height: 50px;
+  }
+
+  & .ant-input-group-addon {
+    background: rgba(0,0,0,0);
+  }
+
+}
 `

@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import './Home.css'
-import { Input, InputNumber, Radio } from 'antd';
-import { CheckboxUnselected, ContentContainer, RowContainer } from './components/Styles';
+import { Empty, Input, InputNumber, Radio, Spin } from 'antd';
+import { CheckboxUnselected, ContentContainer, RowContainer, SearchBar } from './components/Styles';
 import { UtilityButton } from './components/Button';
-import { CheckCircleTwoTone, LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { imagesReceived } from './utils';
+import { FilterOutlined, CheckCircleTwoTone, LeftOutlined, RightOutlined, LoadingOutlined } from '@ant-design/icons';
+import { isEmpty, set } from 'lodash';
 
 //https://github.com/Daym3l/react-gallery-picker/blob/cf4d68cb02777b2f522bcfde4149a38e77bf9887/src/index.js
 
 const { Search } = Input;
-
-// const fs = window.require('fs')
-// const pathModule = window.require('path')
-// const { app } = window.require('@electron/remote')
 
 const Home = () => {
 
@@ -24,8 +20,21 @@ const Home = () => {
     const [searchTerm, setSearchTerm] = useState('')
     const [isLightboxVisible, setLightboxVisibility] = useState(false)
     const [selectedImage, setSelectedImage] = useState()
-    // const [isLoading, setIsLoading] = useState(false);
+    const [imagesReceived, setImagesReceived] = useState([])
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFilterOpen, setIsFilterOpen] = useState(false)
 
+    useEffect(() => {
+        let electron = window.require('electron');
+        if (electron) {
+            electron.ipcRenderer.on('result', (event, msg) => {
+                console.log('got reply:', msg);
+                setImagesReceived(JSON.parse(msg))
+                console.log(imagesReceived)
+                setIsLoading(false)
+            });
+        }
+    }, [])
 
     useEffect(() => {
         let imageList = [];
@@ -33,14 +42,7 @@ const Home = () => {
             imageList.push({ id: i, src: el.url, selected: false, title: el.title })
         });
         setImages(imageList);
-
-        let electron = window.require('electron');
-        if (electron) {
-            electron.ipcRenderer.on('result', (event, msg) => {
-                console.log('got reply:', msg);
-            });
-        }
-    }, [])
+    }, [imagesReceived])
 
     // useEffect(() => {
     //     console.log(allSelected)
@@ -51,9 +53,9 @@ const Home = () => {
     //     }
     // }, [])
 
-    // useEffect(() => {
-    //     returnImages(images)
-    // }, [images])
+    const onFilterClick = () => {
+        setIsFilterOpen(!isFilterOpen)
+    }
 
     const onCheckboxClick = id => {
         let imageList = [...images];
@@ -109,11 +111,22 @@ const Home = () => {
     }
 
     const onSearch = (value) => {
-        console.log(value);
-        setSearchTerm(value);
-        console.log('window.electron', window.electron)
-        let electron = window.require('electron');
-        if (electron) electron.ipcRenderer.send("msg", "hello & search "+ value);
+        console.log('search: ', value, ',', queryLimit);
+
+        if (value !== '') {
+            setSearchTerm(value);
+            console.log('window.electron', window.electron)
+            let electron = window.require('electron');
+            if (electron) electron.ipcRenderer.send("msg", value);
+
+            setIsLoading(true)
+        } else {
+            setImages([])
+            setImagesReceived([])
+            setAllSelected(false)
+            setSearchTerm(value);
+
+        }
     }
 
     const handleSelectAll = () => {
@@ -168,7 +181,9 @@ const Home = () => {
     ));
 
     return (
-        <body style={{ marginTop: "3em", marginBottom: "2em" }}>
+        <body style={{ marginTop: "5em", marginBottom: "2em" }}>
+            <div className='header' />
+
             <ContentContainer alignitems="center" >
                 <header>
                     <div className="head-text">
@@ -176,42 +191,30 @@ const Home = () => {
                     </div>
                 </header>
                 <RowContainer justifycontent="center" marginbottom="0em">
-                    <div className='label' style={{ height: 40, marginRight: '0.5em' }}>
-                        Result Limit:
-                    </div>
-                    <InputNumber style={{ width: '8%', marginRight: "1em" }}
-                        placeholder="Query limit"
-                        value={queryLimit}
-                        precision={0}
-                        onChange={handleLimitChange}
-                        size='large'
-                        step={10}
-                        min={0}
-                        max={500}
-                        allowClear={false}
-                    />
-
-                    <Search placeholder="Input search text"
+                    <SearchBar placeholder="Input search text"
                         allowClear
                         onSearch={onSearch}
                         size="large"
-                        style={{ borderRadius: '5px', width: '35%', marginBottom: "1.5em" }} />
+                        style={{ width: '45%', marginLeft: '3%', marginBottom: "1.5em" }}
+                        loading={isLoading}
+                        enterButton />
                 </RowContainer>
-                <div className='sublabel'>
+                {!isLoading && !isEmpty(searchTerm) ? <div className='sublabel'>
                     Found {images.length} results for search term "{searchTerm}"
                 </div>
+                    : ''
+                }
             </ContentContainer>
 
-            <ContentContainer alignitems="center" style={{ width: "80%" }}>
-                <RowContainer style={{ width: "90%" }} alignitems="center" justifycontent="space-between" marginbottom="1em" marginright="0px">
-                    <div className='sublabel' >
-                        Image Size:
-                        <Radio.Group value={imgSize} onChange={handleSizeChange} style={{ marginLeft: '10px' }}>
-                            <Radio.Button key={'large'} value={["250vmin", "242vmin"]}>Large</Radio.Button>
-                            <Radio.Button key={'default'} value={["200vmin", "192vmin"]}>Default</Radio.Button>
-                            <Radio.Button key={'small'} value={["150vmin", "142vmin"]}>Small</Radio.Button>
-                        </Radio.Group>
-                    </div>
+            <ContentContainer alignitems="center" style={{ width: "80vw" }}>
+                <RowContainer style={{ width: "90%" }} alignitems="center" justifycontent="space-between" marginbottom="1em" marginright="0">
+                    <UtilityButton
+                        type={'alt'}
+                        onClick={onFilterClick}
+                        width={'4vw'}
+                        marginleft={'0'}
+                        icon={<FilterOutlined />}
+                    >Filters</UtilityButton>
                     <div>
                         <UtilityButton
                             type={allSelected ? 'alt' : 'primary'}
@@ -225,12 +228,42 @@ const Home = () => {
                         >Download ({images.filter(im => im.selected === true).length})</UtilityButton>
                     </div>
                 </RowContainer>
+                {isFilterOpen &&
+                    <RowContainer justifycontent="flex-start" style={{ width: "90%" }} >
+                        <ContentContainer width="250px" >
+                            <div className='sublabel'>Image Size:</div>
+                            <Radio.Group value={imgSize} onChange={handleSizeChange}>
+                                <Radio.Button key={'large'} value={["250vmin", "242vmin"]}>Large</Radio.Button>
+                                <Radio.Button key={'default'} value={["200vmin", "192vmin"]}>Default</Radio.Button>
+                                <Radio.Button key={'small'} value={["150vmin", "142vmin"]}>Small</Radio.Button>
+                            </Radio.Group>
+                        </ContentContainer>
+                        <ContentContainer width="150px">
+                            <div className='sublabel'>
+                                Result Limit:
+                            </div>
+                            <InputNumber style={{ width: '100px'}}
+                                placeholder="Query limit"
+                                value={queryLimit}
+                                precision={0}
+                                onChange={handleLimitChange}
+                                size='default'
+                                step={10}
+                                min={0}
+                                max={500}
+                                allowClear={false}
+                            />
+                        </ContentContainer>
+
+                    </RowContainer>}
                 <div className="gallery"
                     style={{
                         paddingBottom: "2em"
                     }}>
 
-                    {gallery}
+                    {isLoading ? <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+                        : !isEmpty(images) ? gallery
+                            : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ marginTop: '5em' }} />}
                 </div>
                 {
                     isLightboxVisible ?
@@ -238,8 +271,8 @@ const Home = () => {
                             <LeftOutlined style={{ fontSize: '50px', color: 'white', marginLeft: '20vmin' }}
                                 onClick={showPrev} />
                             {/* <ContentContainer alignitems="center"> */}
-                                <img id={selectedImage.id} src={selectedImage.src} className='modal' />
-                                {/* <div className='caption' style={{ width: '70%'}}>
+                            <img id={selectedImage.id} src={selectedImage.src} alt={selectedImage.title} className='modal' />
+                            {/* <div className='caption' style={{ width: '70%'}}>
                                     {selectedImage.title}
                                 </div> */}
                             {/* </ContentContainer>  */}

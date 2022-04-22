@@ -6,11 +6,16 @@ var Scraper = require('./google/scraper');
 
 let google = new Scraper();
 
-(async () => {
-  const results = await google.scrape('asgdfdsfgd asdhjg', 10); // Or ['banana', 'strawberry'] for multi-queries
-  console.log('results', results);
+async function search(query, limit)  {
+  const results = await google.scrape(query, limit); // Or ['banana', 'strawberry'] for multi-queries
+  // console.log('results', results);
   console.log(results.length, ' results found')
 
-})();
+  console.log(JSON.stringify(results))
 
+  const results_string = JSON.stringify(results)
+  return JJSON.stringify(results)
+};
+
+search('ocean', 10);
 

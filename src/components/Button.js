@@ -13,7 +13,7 @@ import styled from 'styled-components';
 
 export const UtilityButton = styled(Button)`
   && {
-    border-radius: 5px;
+    border-radius: 10px;
     font-size: 16px;  
     text-align: center;
     display-inline-block;
@@ -21,7 +21,7 @@ export const UtilityButton = styled(Button)`
     min-width: 150px;
     max-width: 180px;
     height: 40px;
-    margin-left: 10px;
+    margin-left: ${(props) => (props.marginleft ? props.marginleft : '10px')};
 
   }
 `
