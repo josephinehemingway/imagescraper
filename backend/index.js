@@ -14,8 +14,20 @@ async function search(query, limit)  {
   console.log(JSON.stringify(results))
 
   const results_string = JSON.stringify(results)
-  return JJSON.stringify(results)
+  return results
 };
 
-search('ocean', 10);
+async function download(selected, searchterm) {
+  await google.downloadMultiple(selected, searchterm);
+  console.log(selected);
+}
+
+var searchterm = 'ocean'
+
+let res = search(searchterm, 10);
+res.then(function(result) {
+  console.log(searchterm)
+  download(result, searchterm);
+})
+
 

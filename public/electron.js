@@ -52,16 +52,20 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.on("msg", (event, data) => {
-  console.log('got msg:', data);
+ipcMain.on("msg", (event, {payload}) => {
+  console.log('got msg:', {payload});
   // require sub-module to handle the 
-  console.log(data)
-  res = search(data, 10)
+  console.log(payload)
+  res = search(payload.searchTerm, payload.limit)
   console.log('sending reply');
   res.then(function(result) {
     win.send('result', result)
   })
 })
+
+// ipcMain.on("download", (event, data) => {
+
+// })
 
 var Scraper = require('../backend/google/scraper');
 let google = new Scraper();

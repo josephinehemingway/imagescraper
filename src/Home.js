@@ -117,7 +117,12 @@ const Home = () => {
             setSearchTerm(value);
             console.log('window.electron', window.electron)
             let electron = window.require('electron');
-            if (electron) electron.ipcRenderer.send("msg", value);
+            if (electron) electron.ipcRenderer.send("msg", {
+                payload: { 
+                    searchTerm: value,
+                    limit: queryLimit
+                }
+                });
 
             setIsLoading(true)
         } else {
@@ -125,7 +130,6 @@ const Home = () => {
             setImagesReceived([])
             setAllSelected(false)
             setSearchTerm(value);
-
         }
     }
 
@@ -149,6 +153,12 @@ const Home = () => {
 
     const handleDownload = () => {
         console.log(images.filter(im => im.selected === true))
+        // if (electron) electron.ipcRenderer.send("msg", {
+        //     payload: { 
+        //         searchTerm: value,
+        //         limit: queryLimit
+        //     }
+        // });
         // open file explorer - to select download location
         // download images into local directory
         // download as a zip?
@@ -229,6 +239,7 @@ const Home = () => {
                     </div>
                 </RowContainer>
                 {isFilterOpen &&
+                // add filter file types, file size
                     <RowContainer justifycontent="flex-start" style={{ width: "90%" }} >
                         <ContentContainer width="250px" >
                             <div className='sublabel'>Image Size:</div>

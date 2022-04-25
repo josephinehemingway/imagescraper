@@ -4,6 +4,8 @@ const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 const url = require('url');
 const logger = require('../logger');
+const fs = require('fs');
+const https = require('https');
 
 /**
  * @param {string} userAgent user agent
@@ -109,6 +111,26 @@ class GoogleScraper {
 
     await this.browser.close();
     return results;
+  }
+
+  async downloadMultiple(results, searchterm) {
+    console.log(typeof(results))
+    console.log(searchterm)
+    
+    const urls = [];
+    results.forEach(elm => {
+      urls.push(elm.url);
+    })
+    
+    urls.forEach((img, index) => {
+      https.get(img, res => {
+        const stream = fs.createWriteStream(`${searchterm} - ${index}.png`);
+        res.pipe(stream);
+        stream.on('finish', () => {
+          stream.close();
+        })
+      })
+    });
   }
 
   /**
