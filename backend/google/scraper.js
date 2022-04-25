@@ -113,18 +113,18 @@ class GoogleScraper {
     return results;
   }
 
-  async downloadMultiple(results, searchterm) {
+  async downloadMultiple(results, searchterm, path) {
     console.log(typeof(results))
     console.log(searchterm)
-    
+
     const urls = [];
     results.forEach(elm => {
-      urls.push(elm.url);
+      urls.push(elm.src);
     })
     
     urls.forEach((img, index) => {
       https.get(img, res => {
-        const stream = fs.createWriteStream(`${searchterm} - ${index}.png`);
+        const stream = fs.createWriteStream(`${searchterm} - ${index}.png`); // downloads to root dir of proj
         res.pipe(stream);
         stream.on('finish', () => {
           stream.close();

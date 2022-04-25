@@ -52,6 +52,7 @@ app.on('activate', () => {
   }
 });
 
+// get search term and query limit and send result back to front end
 ipcMain.on("msg", (event, {payload}) => {
   console.log('got msg:', {payload});
   // require sub-module to handle the 
@@ -63,9 +64,11 @@ ipcMain.on("msg", (event, {payload}) => {
   })
 })
 
-// ipcMain.on("download", (event, data) => {
+ipcMain.on("download", (event, {payload}) => {
+  console.log('downloading:', payload)
+  download(payload.selected, payload.searchTerm);
 
-// })
+})
 
 var Scraper = require('../backend/google/scraper');
 let google = new Scraper();
@@ -79,3 +82,8 @@ async function search(query, limit)  {
   const results_string = JSON.stringify(results)
   return results_string
 };
+
+async function download(selected, searchterm) {
+  await google.downloadMultiple(selected, searchterm);
+  console.log(selected);
+}

@@ -153,12 +153,14 @@ const Home = () => {
 
     const handleDownload = () => {
         console.log(images.filter(im => im.selected === true))
-        // if (electron) electron.ipcRenderer.send("msg", {
-        //     payload: { 
-        //         searchTerm: value,
-        //         limit: queryLimit
-        //     }
-        // });
+        let electron = window.require('electron');
+        if (electron) electron.ipcRenderer.send("download", {
+            payload: { 
+                selected: images.filter(im => im.selected === true),
+                searchTerm: searchTerm
+            }
+            });
+    
         // open file explorer - to select download location
         // download images into local directory
         // download as a zip?
