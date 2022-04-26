@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from 'react'
 import './Home.css'
-import { Empty, Input, InputNumber, Radio, Spin } from 'antd';
+import { Empty, InputNumber, Radio, Spin, Select } from 'antd';
 import { CheckboxUnselected, ContentContainer, RowContainer, SearchBar } from './components/Styles';
 import { UtilityButton } from './components/Button';
 import { FilterOutlined, CheckCircleTwoTone, LeftOutlined, RightOutlined, LoadingOutlined } from '@ant-design/icons';
-import { isEmpty, set } from 'lodash';
+import { isEmpty} from 'lodash';
+
+const { Option } = Select;
 
 //https://github.com/Daym3l/react-gallery-picker/blob/cf4d68cb02777b2f522bcfde4149a38e77bf9887/src/index.js
-
-const { Search } = Input;
 
 const Home = () => {
 
     const [images, setImages] = useState([])
     const [queryLimit, setQueryLimit] = useState(10);
     const [allSelected, setAllSelected] = useState(false);
-    const [imgSize, setImgSize] = useState("200vmin")
-    const [selectedSize, setSelectedSize] = useState('192vmin')
-    const [searchTerm, setSearchTerm] = useState('')
-    const [isLightboxVisible, setLightboxVisibility] = useState(false)
-    const [selectedImage, setSelectedImage] = useState()
-    const [imagesReceived, setImagesReceived] = useState([])
+    const [imgSize, setImgSize] = useState("200vmin");
+    const [selectedSize, setSelectedSize] = useState('192vmin');
+    const [imgRes, setImgRes] = useState('');
+    const [license, setLicense] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isLightboxVisible, setLightboxVisibility] = useState(false);
+    const [selectedImage, setSelectedImage] = useState();
+    const [imagesReceived, setImagesReceived] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isFilterOpen, setIsFilterOpen] = useState(false)
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     useEffect(() => {
         let electron = window.require('electron');
@@ -39,6 +41,8 @@ const Home = () => {
     useEffect(() => {
         let imageList = [];
         imagesReceived.forEach((el, i) => {
+            const img = new Image();
+            img.src = el.url;
             imageList.push({ id: i, src: el.url, selected: false, title: el.title })
         });
         setImages(imageList);
@@ -106,8 +110,38 @@ const Home = () => {
     }
 
     const handleSizeChange = (e) => {
+        console.log(e.target.value)
         setImgSize(e.target.value[0])
         setSelectedSize(e.target.value[1])
+    }
+
+    const handleResChange = (e) => {
+        console.log(e.target.value)
+        setImgRes(e.target.value)
+
+        // Trigger search on change of image resolution
+        if (searchTerm !== '') {
+            let electron = window.require('electron');
+            if (electron) electron.ipcRenderer.send("msg", {
+                payload: { 
+                    searchTerm: searchTerm,
+                    limit: queryLimit,
+                    size: e.target.value,
+                }
+                });
+
+            setIsLoading(true)
+        } else {
+            setImages([])
+            setImagesReceived([])
+            setAllSelected(false)
+            setSearchTerm('');
+        }
+    }
+
+    const handleLicenseChange = (e) => {
+        console.log(e)
+        setLicense(e)
     }
 
     const onSearch = (value) => {
@@ -120,7 +154,8 @@ const Home = () => {
             if (electron) electron.ipcRenderer.send("msg", {
                 payload: { 
                     searchTerm: value,
-                    limit: queryLimit
+                    limit: queryLimit,
+                    size: imgRes,
                 }
                 });
 
@@ -166,6 +201,10 @@ const Home = () => {
         // download as a zip?
     }
 
+    // const handleError = e => {
+    //     e.target.src = "./assets/blankimage.PNG"
+    //   }
+
     const gallery = images.map((im, i) => (
         <div className={im.selected ? "selected" : "imgPicker"}>
 
@@ -174,9 +213,10 @@ const Home = () => {
                 data-for={"images"}
                 src={im.src}
                 alt={im.title}
-                height={im.selected ? selectedSize : imgSize}
-                width={im.selected ? selectedSize : imgSize}
+                height={im.selected ? "192vmin" : "200vmin"}
+                width={im.selected ? "192vmin" : "200vmin"}
                 onClick={() => handleOpenLightbox(im)}
+                referrerpolicy="no-referrer"
             />
 
             {im.selected ?
@@ -243,13 +283,34 @@ const Home = () => {
                 {isFilterOpen &&
                 // add filter file types, file size
                     <RowContainer justifycontent="flex-start" style={{ width: "90%" }} >
-                        <ContentContainer width="250px" >
+                        {/* <ContentContainer width="250px" >
                             <div className='sublabel'>Image Size:</div>
                             <Radio.Group value={imgSize} onChange={handleSizeChange}>
                                 <Radio.Button key={'large'} value={["250vmin", "242vmin"]}>Large</Radio.Button>
                                 <Radio.Button key={'default'} value={["200vmin", "192vmin"]}>Default</Radio.Button>
                                 <Radio.Button key={'small'} value={["150vmin", "142vmin"]}>Small</Radio.Button>
                             </Radio.Group>
+                        </ContentContainer> */}
+                        <ContentContainer width="270px" >
+                            <div className='sublabel'>Image Size:</div>
+                            <Radio.Group value={imgRes} onChange={handleResChange}>
+                                <Radio.Button key={'any'} value={''}>Any Size</Radio.Button>
+                                <Radio.Button key={'medium'} value={'isz:m'}>Medium</Radio.Button>
+                                <Radio.Button key={'large'} value={'isz:l'}>Large</Radio.Button>
+                            </Radio.Group>
+                        </ContentContainer>
+                        <ContentContainer width="270px" >
+                            <div className='sublabel'>License:</div>
+                            <Select 
+                                placeholder="Select License"
+                                defaultvalue={'All'}
+                                style={{width: '235px'}}
+                                onChange={handleLicenseChange}
+                            >
+                                <Option value = "">All</Option>
+                                <Option value = "il:cl">Creative Commons License</Option>
+                                <Option value = "il:ol">Commercial and Other License</Option>
+                            </Select>
                         </ContentContainer>
                         <ContentContainer width="150px">
                             <div className='sublabel'>
@@ -267,6 +328,7 @@ const Home = () => {
                                 allowClear={false}
                             />
                         </ContentContainer>
+                        
 
                     </RowContainer>}
                 <div className="gallery"

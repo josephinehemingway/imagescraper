@@ -57,7 +57,7 @@ ipcMain.on("msg", (event, {payload}) => {
   console.log('got msg:', {payload});
   // require sub-module to handle the 
   console.log(payload)
-  res = search(payload.searchTerm, payload.limit)
+  res = search(payload.searchTerm, payload.limit, payload.size)
   console.log('sending reply');
   res.then(function(result) {
     win.send('result', result)
@@ -73,8 +73,8 @@ ipcMain.on("download", (event, {payload}) => {
 var Scraper = require('../backend/google/scraper');
 let google = new Scraper();
 
-async function search(query, limit)  {
-  const results = await google.scrape(query, limit); 
+async function search(query, limit, size)  {
+  const results = await google.scrape(query, limit, size); 
   
   console.log(results.length, ' results found')
   console.log('results', results);

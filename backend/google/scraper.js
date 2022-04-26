@@ -46,9 +46,9 @@ class GoogleScraper {
     } else return '';
   }
 
-  async _scrapePage(searchQuery, limit = 100) {
-    const query = `https://www.google.com/search?${this.safe}&source=lnms&tbm=isch&sa=X&tbs=${this.tbs}&q=${searchQuery}`;
-
+  async _scrapePage(searchQuery, limit = 100, size) {
+    const query = `https://www.google.com/search?${this.safe}&source=lnms&tbm=isch&sa=X&tbs=${size}&q=${searchQuery}`;
+    console.log('searching: ', query)
     logger.debug(`Start Google search for "${searchQuery}"`);
 
     const page = await this.browser.newPage();
@@ -85,7 +85,7 @@ class GoogleScraper {
     return results;
   }
 
-  async scrape(searchQuery, limit) {
+  async scrape(searchQuery, limit, size) {
     if (searchQuery === undefined || searchQuery === '') {
       throw new Error('Invalid search query provided');
     }
@@ -99,15 +99,15 @@ class GoogleScraper {
     // can pass in search array eg fruits = ['a', 'b']
     if (Array.isArray(searchQuery)) {
       const promises = searchQuery.map(async (query) => {
-        const images = await this._scrapePage(query, limit);
+        const images = await this._scrapePage(query, limit, size);
         return { query, images };
       });
       results = await Promise.all(promises);
     } else {
-      results = await this._scrapePage(searchQuery, limit);
+      results = await this._scrapePage(searchQuery, limit, size);
     }
 
-    await this._scrapePage(searchQuery, limit);
+    await this._scrapePage(searchQuery, limit, size);
 
     await this.browser.close();
     return results;
@@ -124,7 +124,7 @@ class GoogleScraper {
     
     urls.forEach((img, index) => {
       https.get(img, res => {
-        const stream = fs.createWriteStream(`${searchterm} - ${index}.png`); // downloads to root dir of proj
+        const stream = fs.createWriteStream(`downloads/${searchterm} - ${index}.png`); // downloads to root dir of proj
         res.pipe(stream);
         stream.on('finish', () => {
           stream.close();
@@ -211,8 +211,12 @@ class GoogleScraper {
 
     $('#islrg div[jsaction][data-tbnid]').each(function (_i, containerElement) {
       const containerElement_ = $(containerElement);
+      // console.log(containerElement_)
       const linkElementHref = containerElement_.find("a[href^='/imgres']").attr('href');
       const imageElementAlt = containerElement_.find('img').attr('alt');
+      const imageWidth = containerElement_.find('img').attr('width');
+      const imageHeight = containerElement_.find('img').attr('height');
+      // console.log(containerElement_.find("a[href^='/imgres']"))
       const parsedLink = url.parse(linkElementHref, { parseQueryString: true });
       const imageurl = parsedLink.query.imgurl;
       const source = parsedLink.query.imgrefurl;
