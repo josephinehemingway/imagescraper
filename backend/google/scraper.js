@@ -46,8 +46,8 @@ class GoogleScraper {
     } else return '';
   }
 
-  async _scrapePage(searchQuery, limit = 100, size) {
-    const query = `https://www.google.com/search?${this.safe}&source=lnms&tbm=isch&sa=X&tbs=${size}&q=${searchQuery}`;
+  async _scrapePage(searchQuery, limit = 100, params) {
+    const query = `https://www.google.com/search?${this.safe}&source=lnms&tbm=isch&sa=X&tbs=${params}&q=${searchQuery}`;
     console.log('searching: ', query)
     logger.debug(`Start Google search for "${searchQuery}"`);
 
@@ -85,7 +85,7 @@ class GoogleScraper {
     return results;
   }
 
-  async scrape(searchQuery, limit, size) {
+  async scrape(searchQuery, limit, params) {
     if (searchQuery === undefined || searchQuery === '') {
       throw new Error('Invalid search query provided');
     }
@@ -99,15 +99,15 @@ class GoogleScraper {
     // can pass in search array eg fruits = ['a', 'b']
     if (Array.isArray(searchQuery)) {
       const promises = searchQuery.map(async (query) => {
-        const images = await this._scrapePage(query, limit, size);
+        const images = await this._scrapePage(query, limit, params);
         return { query, images };
       });
       results = await Promise.all(promises);
     } else {
-      results = await this._scrapePage(searchQuery, limit, size);
+      results = await this._scrapePage(searchQuery, limit, params);
     }
 
-    await this._scrapePage(searchQuery, limit, size);
+    await this._scrapePage(searchQuery, limit, params);
 
     await this.browser.close();
     return results;
