@@ -4,7 +4,7 @@ import { Empty, InputNumber, Radio, Spin, Select } from 'antd';
 import { CheckboxUnselected, ContentContainer, RowContainer, SearchBar } from './components/Styles';
 import { UtilityButton } from './components/Button';
 import { FilterOutlined, CheckCircleTwoTone, LeftOutlined, RightOutlined, LoadingOutlined } from '@ant-design/icons';
-import { isEmpty} from 'lodash';
+import { isEmpty } from 'lodash';
 
 const { Option } = Select;
 
@@ -15,8 +15,8 @@ const Home = () => {
     const [images, setImages] = useState([])
     const [queryLimit, setQueryLimit] = useState(10);
     const [allSelected, setAllSelected] = useState(false);
-    const [imgSize, setImgSize] = useState("200vmin");
-    const [selectedSize, setSelectedSize] = useState('192vmin');
+    const [imgSize, setImgSize] = useState("175vmin");
+    const [selectedSize, setSelectedSize] = useState('167vmin');
     const [imgRes, setImgRes] = useState('');
     const [license, setLicense] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -48,14 +48,14 @@ const Home = () => {
         setImages(imageList);
     }, [imagesReceived])
 
-    // useEffect(() => {
-    //     console.log(allSelected)
-    //     if (images.filter(im => im.selected == true).length == images.length){
-    //         setAllSelected(true)
-    //     } else {
-    //         setAllSelected(false)
-    //     }
-    // }, [])
+    useEffect(() => {
+        console.log(images.every(im => im.selected === true))
+        if (!isEmpty(images) & images.every(im => im.selected === true)){
+            setAllSelected(true)
+        } else {
+            setAllSelected(false)
+        }
+    }, [images])
 
     const onFilterClick = () => {
         setIsFilterOpen(!isFilterOpen)
@@ -116,19 +116,19 @@ const Home = () => {
     }
 
     const handleResChange = (e) => {
-        console.log(e.target.value)
-        setImgRes(e.target.value)
+        console.log(e)
+        setImgRes(e)
 
         // Trigger search on change of image resolution
         if (searchTerm !== '') {
             let electron = window.require('electron');
             if (electron) electron.ipcRenderer.send("msg", {
-                payload: { 
+                payload: {
                     searchTerm: searchTerm,
                     limit: queryLimit,
-                    size: e.target.value,
+                    size: e,
                 }
-                });
+            });
 
             setIsLoading(true)
         } else {
@@ -152,12 +152,12 @@ const Home = () => {
             console.log('window.electron', window.electron)
             let electron = window.require('electron');
             if (electron) electron.ipcRenderer.send("msg", {
-                payload: { 
+                payload: {
                     searchTerm: value,
                     limit: queryLimit,
                     size: imgRes,
                 }
-                });
+            });
 
             setIsLoading(true)
         } else {
@@ -190,15 +190,11 @@ const Home = () => {
         console.log(images.filter(im => im.selected === true))
         let electron = window.require('electron');
         if (electron) electron.ipcRenderer.send("download", {
-            payload: { 
+            payload: {
                 selected: images.filter(im => im.selected === true),
                 searchTerm: searchTerm
             }
-            });
-    
-        // open file explorer - to select download location
-        // download images into local directory
-        // download as a zip?
+        });
     }
 
     // const handleError = e => {
@@ -213,8 +209,8 @@ const Home = () => {
                 data-for={"images"}
                 src={im.src}
                 alt={im.title}
-                height={im.selected ? "192vmin" : "200vmin"}
-                width={im.selected ? "192vmin" : "200vmin"}
+                height={im.selected ? selectedSize : imgSize}
+                width={im.selected ? selectedSize : imgSize}
                 onClick={() => handleOpenLightbox(im)}
                 referrerpolicy="no-referrer"
             />
@@ -271,6 +267,7 @@ const Home = () => {
                         <UtilityButton
                             type={allSelected ? 'alt' : 'primary'}
                             onClick={handleSelectAll}
+                            disabled={isEmpty(images)}
                         >{allSelected ? 'Unselect All' : 'Select All'}</UtilityButton>
 
                         <UtilityButton
@@ -280,43 +277,47 @@ const Home = () => {
                         >Download ({images.filter(im => im.selected === true).length})</UtilityButton>
                     </div>
                 </RowContainer>
-                {isFilterOpen &&
-                // add filter file types, file size
-                    <RowContainer justifycontent="flex-start" style={{ width: "90%" }} >
-                        {/* <ContentContainer width="250px" >
+
+                <div id='filter' style={{ width: "90%" }}>
+                    <RowContainer id="expand-contract" justifycontent="flex-start" marginright='0px' className={isFilterOpen ? 'expanded' : ''} >
+                        <ContentContainer width="230px" >
                             <div className='sublabel'>Image Size:</div>
-                            <Radio.Group value={imgSize} onChange={handleSizeChange}>
-                                <Radio.Button key={'large'} value={["250vmin", "242vmin"]}>Large</Radio.Button>
-                                <Radio.Button key={'default'} value={["200vmin", "192vmin"]}>Default</Radio.Button>
-                                <Radio.Button key={'small'} value={["150vmin", "142vmin"]}>Small</Radio.Button>
-                            </Radio.Group>
-                        </ContentContainer> */}
-                        <ContentContainer width="270px" >
-                            <div className='sublabel'>Image Size:</div>
-                            <Radio.Group value={imgRes} onChange={handleResChange}>
-                                <Radio.Button key={'any'} value={''}>Any Size</Radio.Button>
-                                <Radio.Button key={'medium'} value={'isz:m'}>Medium</Radio.Button>
-                                <Radio.Button key={'large'} value={'isz:l'}>Large</Radio.Button>
-                            </Radio.Group>
+
+                            <Select
+                                placeholder="Select Image Size"
+                                value={imgRes}
+                                style={{ width: '200px' }}
+                                onChange={handleResChange}
+                            >
+                                <Option value="">Any Size</Option>
+                                <Option value="isz:m">Medium</Option>
+                                <Option value="isz:l">Large</Option>
+                                <Option value="isz:lt,islt:qsvga">Larger than 400x300</Option>
+                                <Option value="isz:lt,islt:vga">Larger than 640x480</Option>
+                                <Option value="isz:lt,islt:svga">Larger than 800x600</Option>
+                                <Option value="isz:lt,islt:xga">Larger than 1024x768</Option>
+
+                            </Select>
+
                         </ContentContainer>
-                        <ContentContainer width="270px" >
+                        <ContentContainer width="260px" >
                             <div className='sublabel'>License:</div>
-                            <Select 
+                            <Select
                                 placeholder="Select License"
-                                defaultvalue={'All'}
-                                style={{width: '235px'}}
+                                value={license}
+                                style={{ width: '235px' }}
                                 onChange={handleLicenseChange}
                             >
-                                <Option value = "">All</Option>
-                                <Option value = "il:cl">Creative Commons License</Option>
-                                <Option value = "il:ol">Commercial and Other License</Option>
+                                <Option value="">All</Option>
+                                <Option value="il:cl">Creative Commons License</Option>
+                                <Option value="il:ol">Commercial and Other License</Option>
                             </Select>
                         </ContentContainer>
                         <ContentContainer width="150px">
                             <div className='sublabel'>
                                 Result Limit:
                             </div>
-                            <InputNumber style={{ width: '100px'}}
+                            <InputNumber style={{ width: '100px' }}
                                 placeholder="Query limit"
                                 value={queryLimit}
                                 precision={0}
@@ -328,9 +329,9 @@ const Home = () => {
                                 allowClear={false}
                             />
                         </ContentContainer>
-                        
 
-                    </RowContainer>}
+                    </RowContainer>
+                </div>
                 <div className="gallery"
                     style={{
                         paddingBottom: "2em"
